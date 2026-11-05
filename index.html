@@ -18,9 +18,8 @@
                  automatically from every <section data-dot="Label">.
   5. SECTIONS    Each part is a <section id="..."> marked with an EDIT comment.
                  Delete a section to remove it, and remove its menu link.
-  6. BLOG        Latest Blog reads posts.json, so every visitor sees the same
-                 list. Add or delete on the page, then press "Show to
-                 visitors" and submit the GitHub page that opens.
+  6. BLOG        Latest Blog reads posts.json. Change a title, date, or
+                 summary there on GitHub. The page has no editor.
   7. EMAIL       Change data-email on the copy button and the mailto: links.
   8. SOCIALS     Replace "your-username" in the Contact section links.
   9. SHOP        Edit product names, descriptions and INR prices in "shop".
@@ -163,38 +162,6 @@ p:last-child{margin-bottom:0}
 .post:hover h3{color:var(--accent)}
 .more{display:inline-block;margin-top:26px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase}
 
-/* Blog editor */
-.blog-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:8px}
-.blog-head h2{margin-bottom:0}
-.blog-head .pill{flex:none}
-.blog-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
-.blog-help{margin:14px 0 4px;font-size:14.5px;color:var(--muted)}
-.publish-note{margin:14px 0 8px;padding:12px 14px;border:1px solid var(--line);font-size:14.5px;line-height:1.55}
-.publish-note[hidden]{display:none}
-.publish-note a{display:inline-block;margin-top:8px;color:var(--accent)}
-.publish-note a[hidden]{display:none}
-.text-btn{background:none;border:0;padding:0;font:inherit;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
-.text-btn:hover{color:var(--accent);border-color:var(--accent)}
-.composer{margin:22px 0 6px}
-.composer[hidden]{display:none}
-.composer-grid{display:grid;grid-template-columns:1fr 190px;gap:16px 22px}
-.field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.field.wide{grid-column:1/-1}
-.field span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.field input{font:inherit;font-size:16px;color:var(--text);background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:8px 0;width:100%;color-scheme:light}
-[data-theme="dark"] .field input{color-scheme:dark}
-.field input::placeholder{color:var(--faint)}
-.field input[aria-invalid="true"]{border-bottom-color:var(--accent)}
-.composer-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:18px}
-.composer-actions .text-btn[hidden]{display:none}
-.composer-note{flex-basis:100%;margin:2px 0 0;font-size:12.5px;color:var(--faint)}
-.pill{background:var(--text);color:var(--bg);border:0;border-radius:999px;padding:8px 16px;font:inherit;font-size:13px;cursor:pointer;transition:transform .2s,opacity .2s}
-.pill:hover{transform:translateY(-1px)}
-.pill:active{transform:none}
-.post-actions{display:flex;gap:18px;margin:-4px 0 16px}
-.post-actions button{background:none;border:0;padding:0;font:inherit;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line)}
-.post-actions button:hover,.post-actions .delete{color:var(--accent);border-bottom-color:var(--accent)}
-li.is-editing .post h3{color:var(--accent)}
 .empty{margin:8px 0 0;color:var(--muted)}
 .empty[hidden]{display:none}
 
@@ -275,9 +242,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   .hero{min-height:auto;padding:72px 0 64px}
   .about{grid-template-columns:1fr;gap:24px}
   .portrait{width:120px}
-  .blog-head{flex-direction:column;align-items:flex-start;gap:12px}
-  .blog-actions{justify-content:flex-start}
-  .composer-grid{grid-template-columns:1fr}
   .shop{grid-template-columns:1fr;gap:0}
   .item{display:grid;grid-template-columns:84px 1fr;gap:2px 18px;padding:18px 0}
   .item + .item{border-top:1px solid var(--line)}
@@ -371,41 +335,11 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
     </div>
   </section>
 
-  <!-- ===== BLOG: the list is drawn by the script. Use "Add a post" on the page. ===== -->
+  <!-- ===== BLOG: titles and dates come from posts.json ===== -->
   <section id="articles" data-dot="Blog">
     <div class="wrap">
-      <div class="blog-head rise">
-        <h2>Latest Blog</h2>
-        <div class="blog-actions">
-          <button type="button" class="pill" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
-          <button type="button" class="pill" id="publishBtn">Show to visitors</button>
-        </div>
-      </div>
-      <p class="blog-help rise">Press <b>Add a post</b>. Press <b>Delete</b> under a post you do not want. Then press <b>Show to visitors</b>.</p>
-      <p class="publish-note" id="publishNote" hidden>Visitors cannot see this yet. Press <b>Show to visitors</b>. On the GitHub page, press the green <b>Submit new issue</b> button. Wait a minute, then refresh this page. <a class="link" id="publishLink" href="https://github.com/Rishuaba/websiteme/issues/new?title=Publish%20blog" target="_blank" rel="noopener noreferrer" hidden>Open the GitHub page</a></p>
-      <form class="composer" id="composer" hidden>
-        <div class="composer-grid">
-          <label class="field"><span>Title</span>
-            <input id="postTitle" name="title" type="text" required maxlength="140" placeholder="Post title" autocomplete="off" />
-          </label>
-          <label class="field"><span>Date</span>
-            <input id="postDate" name="date" type="date" required />
-          </label>
-          <label class="field wide"><span>One line</span>
-            <input id="postSummary" name="summary" type="text" maxlength="240" placeholder="One sentence about the post" autocomplete="off" />
-          </label>
-          <label class="field wide"><span>Link</span>
-            <input id="postLink" name="href" type="text" inputmode="url" placeholder="https://… (optional)" autocomplete="off" spellcheck="false" />
-          </label>
-        </div>
-        <div class="composer-actions">
-          <button class="pill" id="postSubmit" type="submit">Add post</button>
-          <button class="text-btn" id="postCancel" type="button" hidden>Cancel</button>
-          <button class="text-btn" id="postRestore" type="button">Restore sample posts</button>
-          <p class="composer-note">Visitors see the change after you press Show to visitors.</p>
-        </div>
-      </form>
-      <p class="empty" id="postEmpty" hidden>No posts yet. Add a title and a date to start.</p>
+      <h2 class="rise">Latest Blog</h2>
+      <p class="empty" id="postEmpty" hidden>No posts yet.</p>
       <ul class="articles" id="postList" aria-label="Blog posts"></ul>
       <p class="more rise"><a href="#articles" class="link">See all</a></p>
     </div>
@@ -486,7 +420,7 @@ function setProgress(p){
   function setMenu(open){menu.classList.toggle('open',open);header.classList.toggle('menu-open',open);menuBtn.setAttribute('aria-expanded',String(open));menuBtn.setAttribute('aria-label',open?'Close menu':'Open menu');}
   menuBtn.addEventListener('click',function(){setMenu(!menu.classList.contains('open'));});
   menu.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false);});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){setMenu(false);if(editorOpen)closeEditor();}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')setMenu(false);});
 
   /* Header backdrop + progress line on scroll */
   var progress=document.getElementById('progress'),ticking=false;
@@ -542,34 +476,16 @@ function setProgress(p){
 
   var y=document.getElementById('year');if(y)y.textContent=new Date().getFullYear();
 
-  /* Blog: the public list is posts.json. Show to visitors opens a GitHub page that publishes it. */
+  /* Blog list. Edit posts.json on GitHub. */
   var SAMPLE=[
-    {id:'sample-pause',title:'The Pause Between Clicks',date:'2026-10-20',summary:'Why the best websites leave room to breathe, and how white space builds trust.',href:'',created:4},
-    {id:'sample-store',title:'What a Small Store Taught Me',date:'2026-09-02',summary:'Lessons from selling earbuds online, about clarity, care and customers.',href:'',created:3},
-    {id:'sample-silence',title:'Designing in Silence',date:'2026-07-15',summary:'On music, focus, and finding the right sound to work to.',href:'',created:2},
-    {id:'sample-simple',title:'Returning to Simplicity',date:'2026-05-28',summary:'Why I rebuilt my own website with less, and liked it more.',href:'',created:1}
+    {title:'The Pause Between Clicks',date:'2026-10-20',summary:'Why the best websites leave room to breathe, and how white space builds trust.',href:''},
+    {title:'What a Small Store Taught Me',date:'2026-09-02',summary:'Lessons from selling earbuds online, about clarity, care and customers.',href:''},
+    {title:'Designing in Silence',date:'2026-07-15',summary:'On music, focus, and finding the right sound to work to.',href:''},
+    {title:'Returning to Simplicity',date:'2026-05-28',summary:'Why I rebuilt my own website with less, and liked it more.',href:''}
   ];
-  var REPO='Rishuaba/websiteme';
-  var posts=[];
-  var publishedKey='';
-  var editorOpen=false;
-  var editingId='';
   var listEl=document.getElementById('postList');
   var emptyEl=document.getElementById('postEmpty');
-  var form=document.getElementById('composer');
-  var toggle=document.getElementById('composerToggle');
-  var titleInput=document.getElementById('postTitle');
-  var dateInput=document.getElementById('postDate');
-  var summaryInput=document.getElementById('postSummary');
-  var hrefInput=document.getElementById('postLink');
-  var submitBtn=document.getElementById('postSubmit');
-  var cancelBtn=document.getElementById('postCancel');
-  var restoreBtn=document.getElementById('postRestore');
-  var publishBtn=document.getElementById('publishBtn');
-  var publishNote=document.getElementById('publishNote');
-  var publishLink=document.getElementById('publishLink');
 
-  function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
   function parseISO(iso){
     var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');
     if(!m)return '';
@@ -583,70 +499,27 @@ function setProgress(p){
     var dt=new Date(+p[0],+p[1]-1,+p[2]);
     return dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   }
-  function todayISO(){
-    var d=new Date();
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  }
   function safeHref(value){
     var v=String(value||'').trim();
     if(!v)return '';
     if(/^https?:\/\/\S+$/i.test(v))return v;
     if(v.charAt(0)==='/'&&v.charAt(1)!=='/')return v;
     if(/^(?:posts\/)?[a-z0-9][a-z0-9._~/-]*$/i.test(v)&&v.indexOf('..')===-1)return v;
-    return null;
+    return '';
   }
   function normalize(item){
     if(!item||typeof item!=='object')return null;
     var title=String(item.title||'').trim().slice(0,140);
     var date=parseISO(String(item.date||''));
     if(!title||!date)return null;
-    var href=safeHref(item.href||'');
-    if(href===null)href='';
-    return {id:String(item.id||uid()),title:title,date:date,summary:String(item.summary||'').trim().slice(0,240),href:href,created:typeof item.created==='number'?item.created:0};
+    return {title:title,date:date,summary:String(item.summary||'').trim().slice(0,240),href:safeHref(item.href||'')};
   }
-  function sortPosts(){
-    posts.sort(function(a,b){if(a.date!==b.date)return a.date<b.date?1:-1;return (b.created||0)-(a.created||0);});
-  }
-  function slimList(list){
-    return list.map(function(p){return {title:p.title,date:p.date,summary:p.summary||'',href:p.href||''};});
-  }
-  function listKey(list){return JSON.stringify(slimList(list));}
-  function dirty(){return listKey(posts)!==publishedKey;}
-  function rememberPublic(){
-    publishedKey=listKey(posts);
-    publishNote.hidden=true;
-    publishLink.hidden=true;
-  }
-  function markDirty(){
-    if(!dirty()){publishNote.hidden=true;return;}
-    publishNote.hidden=false;
-  }
-  function publishUrl(){
-    var body='Please publish this blog list.\n\n```json\n'+JSON.stringify(slimList(posts),null,2)+'\n```\n';
-    return 'https://github.com/'+REPO+'/issues/new?labels=blog&title='+encodeURIComponent('Publish blog')+'&body='+encodeURIComponent(body);
-  }
-  function applyPosts(list){
-    posts=list.map(normalize).filter(Boolean);
-    sortPosts();
-    try{localStorage.removeItem('blog-posts');}catch(e){}
-    rememberPublic();
-    renderPosts();
-  }
-  function loadPosts(){
-    fetch('posts.json',{cache:'no-store'}).then(function(res){
-      if(!res.ok)throw new Error('missing');
-      return res.json();
-    }).then(function(parsed){
-      if(!Array.isArray(parsed))throw new Error('bad');
-      applyPosts(parsed);
-    }).catch(function(){applyPosts(SAMPLE);});
-  }
-  function renderPosts(){
+  function renderPosts(posts){
     listEl.textContent='';
     emptyEl.hidden=posts.length>0;
     posts.forEach(function(post,i){
       var li=document.createElement('li');
-      li.className='rise'+(post.id===editingId?' is-editing':'');
+      li.className='rise';
       li.style.setProperty('--d',(i*90)+'ms');
       var card=document.createElement(post.href?'a':'div');
       card.className='post';
@@ -667,132 +540,22 @@ function setProgress(p){
         card.appendChild(para);
       }
       li.appendChild(card);
-      var actions=document.createElement('div');
-      actions.className='post-actions';
-      var editBtn=document.createElement('button');
-      editBtn.type='button';
-      editBtn.textContent='Edit';
-      editBtn.addEventListener('click',function(){beginEdit(post.id);});
-      var removeBtn=document.createElement('button');
-      removeBtn.type='button';
-      removeBtn.className='delete';
-      removeBtn.textContent='Delete';
-      removeBtn.addEventListener('click',function(){removePost(post.id);});
-      actions.appendChild(editBtn);
-      actions.appendChild(removeBtn);
-      li.appendChild(actions);
       listEl.appendChild(li);
       watchRise(li);
     });
   }
-  function resetForm(){
-    editingId='';
-    form.reset();
-    dateInput.value=todayISO();
-    hrefInput.removeAttribute('aria-invalid');
-    submitBtn.textContent='Add post';
-    cancelBtn.hidden=true;
+  function showPosts(list){
+    var posts=list.map(normalize).filter(Boolean);
+    posts.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0;});
+    renderPosts(posts);
   }
-  function openEditor(){
-    editorOpen=true;
-    form.hidden=false;
-    toggle.setAttribute('aria-expanded','true');
-    toggle.textContent='Close';
-    if(!editingId)resetForm();
-    renderPosts();
-    titleInput.focus();
-  }
-  function closeEditor(){
-    editorOpen=false;
-    editingId='';
-    form.hidden=true;
-    toggle.setAttribute('aria-expanded','false');
-    toggle.textContent='Add a post';
-    resetForm();
-    renderPosts();
-  }
-  function beginEdit(id){
-    var post=null;
-    posts.forEach(function(p){if(p.id===id)post=p;});
-    if(!post)return;
-    editorOpen=true;
-    editingId=id;
-    form.hidden=false;
-    toggle.setAttribute('aria-expanded','true');
-    toggle.textContent='Close';
-    titleInput.value=post.title;
-    dateInput.value=post.date;
-    summaryInput.value=post.summary;
-    hrefInput.value=post.href;
-    hrefInput.removeAttribute('aria-invalid');
-    submitBtn.textContent='Save changes';
-    cancelBtn.hidden=false;
-    renderPosts();
-    titleInput.focus();
-    form.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
-  }
-  function removePost(id){
-    var post=null;
-    posts.forEach(function(p){if(p.id===id)post=p;});
-    if(!post)return;
-    if(!confirm('Delete "'+post.title+'"?'))return;
-    posts=posts.filter(function(p){return p.id!==id;});
-    if(editingId===id)resetForm();
-    renderPosts();
-    markDirty();
-    show(dirty()?'Post deleted. Press Show to visitors.':'Post deleted');
-  }
-  toggle.addEventListener('click',function(){if(editorOpen)closeEditor();else openEditor();});
-  cancelBtn.addEventListener('click',function(){resetForm();renderPosts();titleInput.focus();});
-  restoreBtn.addEventListener('click',function(){
-    if(!confirm('Replace your posts with the sample ones?'))return;
-    posts=SAMPLE.map(function(p){return normalize(p);});
-    resetForm();
-    renderPosts();
-    markDirty();
-    show(dirty()?'Sample posts restored. Press Show to visitors.':'Already the sample posts');
-  });
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    if(!form.reportValidity())return;
-    var href=safeHref(hrefInput.value);
-    if(href===null){
-      hrefInput.setAttribute('aria-invalid','true');
-      hrefInput.focus();
-      show('Use a link like https://…');
-      return;
-    }
-    hrefInput.removeAttribute('aria-invalid');
-    var draft={title:titleInput.value,date:dateInput.value,summary:summaryInput.value,href:href};
-    if(editingId){
-      posts=posts.map(function(p){
-        if(p.id!==editingId)return p;
-        var next=normalize({id:p.id,title:draft.title,date:draft.date,summary:draft.summary,href:draft.href,created:p.created});
-        return next||p;
-      });
-    }else{
-      var created=normalize({id:uid(),title:draft.title,date:draft.date,summary:draft.summary,href:draft.href,created:Date.now()});
-      if(created)posts.push(created);
-    }
-    sortPosts();
-    var wasEdit=!!editingId;
-    resetForm();
-    renderPosts();
-    markDirty();
-    show(wasEdit?'Post updated. Press Show to visitors.':'Post added. Press Show to visitors.');
-    if(!wasEdit)titleInput.focus();
-  });
-  publishBtn.addEventListener('click',function(){
-    if(!dirty()){show('Add or delete a post first.');return;}
-    var url=publishUrl();
-    publishLink.href=url;
-    publishLink.hidden=false;
-    publishNote.hidden=false;
-    var tab=window.open(url,'_blank');
-    if(tab){try{tab.opener=null;}catch(err){}}
-    show(tab?'Press the green Submit button':'Open the GitHub link below');
-  });
-  loadPosts();
+  fetch('posts.json',{cache:'no-store'}).then(function(res){
+    if(!res.ok)throw new Error('missing');
+    return res.json();
+  }).then(function(parsed){
+    if(!Array.isArray(parsed))throw new Error('bad');
+    showPosts(parsed);
+  }).catch(function(){showPosts(SAMPLE);});
 })();
 </script>
 </body>
