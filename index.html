@@ -18,8 +18,9 @@
                  automatically from every <section data-dot="Label">.
   5. SECTIONS    Each part is a <section id="..."> marked with an EDIT comment.
                  Delete a section to remove it, and remove its menu link.
-  6. ARTICLES    Each row in the "articles" list = title, date, one line.
-                 Replace href="#" with the real post link.
+  6. BLOG        Open the site, go to Latest Blog, and press "Add a post".
+                 Fill in the title, the date, and one line. It is saved in
+                 this browser. Sample posts are the SAMPLE list in the script.
   7. EMAIL       Change data-email on the copy button and the mailto: links.
   8. SOCIALS     Replace "your-username" in the Contact section links.
   9. SHOP        Edit product names, descriptions and INR prices in "shop".
@@ -162,6 +163,34 @@ p:last-child{margin-bottom:0}
 .post:hover h3{color:var(--accent)}
 .more{display:inline-block;margin-top:26px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase}
 
+/* Blog editor */
+.blog-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:8px}
+.blog-head h2{margin-bottom:0}
+.text-btn{background:none;border:0;padding:0;font:inherit;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
+.text-btn:hover{color:var(--accent);border-color:var(--accent)}
+.composer{margin:22px 0 6px}
+.composer[hidden]{display:none}
+.composer-grid{display:grid;grid-template-columns:1fr 190px;gap:16px 22px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.wide{grid-column:1/-1}
+.field span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.field input{font:inherit;font-size:16px;color:var(--text);background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:8px 0;width:100%;color-scheme:light}
+[data-theme="dark"] .field input{color-scheme:dark}
+.field input::placeholder{color:var(--faint)}
+.field input[aria-invalid="true"]{border-bottom-color:var(--accent)}
+.composer-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:18px}
+.composer-actions .text-btn[hidden]{display:none}
+.composer-note{flex-basis:100%;margin:2px 0 0;font-size:12.5px;color:var(--faint)}
+.pill{background:var(--text);color:var(--bg);border:0;border-radius:999px;padding:8px 16px;font:inherit;font-size:13px;cursor:pointer;transition:transform .2s,opacity .2s}
+.pill:hover{transform:translateY(-1px)}
+.pill:active{transform:none}
+.post-actions{display:flex;gap:16px;margin:-6px 0 16px}
+.post-actions button{background:none;border:0;padding:0;font:inherit;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);cursor:pointer}
+.post-actions button:hover{color:var(--accent)}
+li.is-editing .post h3{color:var(--accent)}
+.empty{margin:8px 0 0;color:var(--muted)}
+.empty[hidden]{display:none}
+
 /* About me */
 .about{display:grid;grid-template-columns:150px 1fr;gap:36px;align-items:start}
 .portrait{aspect-ratio:3/4;border-radius:2px;background:linear-gradient(160deg,var(--wash-2),var(--wash-3));border:1px solid var(--line);display:grid;place-items:end center;padding-bottom:10px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);opacity:.85}
@@ -239,6 +268,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   .hero{min-height:auto;padding:72px 0 64px}
   .about{grid-template-columns:1fr;gap:24px}
   .portrait{width:120px}
+  .blog-head{flex-direction:column;align-items:flex-start;gap:12px}
+  .composer-grid{grid-template-columns:1fr}
   .shop{grid-template-columns:1fr;gap:0}
   .item{display:grid;grid-template-columns:84px 1fr;gap:2px 18px;padding:18px 0}
   .item + .item{border-top:1px solid var(--line)}
@@ -332,22 +363,38 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
     </div>
   </section>
 
-  <!-- ===== EDIT: ARTICLES ===== -->
+  <!-- ===== BLOG: the list is drawn by the script. Use "Add a post" on the page. ===== -->
   <section id="articles" data-dot="Blog">
     <div class="wrap">
-      <h2 class="rise">Latest Blog</h2>
-      <ul class="articles">
-        <!-- EDIT: article 1 (replace href="#" with the post URL) -->
-        <li class="rise"><a class="post" href="#"><h3>The Pause Between Clicks</h3><time datetime="2026-10-20">October 20, 2026</time><p>Why the best websites leave room to breathe, and how white space builds trust.</p></a></li>
-        <!-- EDIT: article 2 -->
-        <li class="rise"><a class="post" href="#"><h3>What a Small Store Taught Me</h3><time datetime="2026-09-02">September 2, 2026</time><p>Lessons from selling earbuds online, about clarity, care and customers.</p></a></li>
-        <!-- EDIT: article 3 -->
-        <li class="rise"><a class="post" href="#"><h3>Designing in Silence</h3><time datetime="2026-07-15">July 15, 2026</time><p>On music, focus, and finding the right sound to work to.</p></a></li>
-        <!-- EDIT: article 4 -->
-        <li class="rise"><a class="post" href="#"><h3>Returning to Simplicity</h3><time datetime="2026-05-28">May 28, 2026</time><p>Why I rebuilt my own website with less, and liked it more.</p></a></li>
-      </ul>
-      <!-- EDIT: See all — after the last article; later point this href to your full blog page -->
-      <p class="more rise"><a href="#" class="link">See all</a></p>
+      <div class="blog-head rise">
+        <h2>Latest Blog</h2>
+        <button type="button" class="text-btn" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
+      </div>
+      <form class="composer" id="composer" hidden>
+        <div class="composer-grid">
+          <label class="field"><span>Title</span>
+            <input id="postTitle" name="title" type="text" required maxlength="140" placeholder="Post title" autocomplete="off" />
+          </label>
+          <label class="field"><span>Date</span>
+            <input id="postDate" name="date" type="date" required />
+          </label>
+          <label class="field wide"><span>One line</span>
+            <input id="postSummary" name="summary" type="text" maxlength="240" placeholder="One sentence about the post" autocomplete="off" />
+          </label>
+          <label class="field wide"><span>Link</span>
+            <input id="postLink" name="href" type="text" inputmode="url" placeholder="https://… (optional)" autocomplete="off" spellcheck="false" />
+          </label>
+        </div>
+        <div class="composer-actions">
+          <button class="pill" id="postSubmit" type="submit">Add post</button>
+          <button class="text-btn" id="postCancel" type="button" hidden>Cancel</button>
+          <button class="text-btn" id="postRestore" type="button">Restore sample posts</button>
+          <p class="composer-note">Saved in this browser, on this device.</p>
+        </div>
+      </form>
+      <p class="empty" id="postEmpty" hidden>No posts yet. Add a title and a date to start.</p>
+      <ul class="articles" id="postList" aria-label="Blog posts"></ul>
+      <p class="more rise"><a href="#articles" class="link">See all</a></p>
     </div>
   </section>
 
@@ -426,7 +473,7 @@ function setProgress(p){
   function setMenu(open){menu.classList.toggle('open',open);header.classList.toggle('menu-open',open);menuBtn.setAttribute('aria-expanded',String(open));menuBtn.setAttribute('aria-label',open?'Close menu':'Open menu');}
   menuBtn.addEventListener('click',function(){setMenu(!menu.classList.contains('open'));});
   menu.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false);});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')setMenu(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){setMenu(false);if(editorOpen)closeEditor();}});
 
   /* Header backdrop + progress line on scroll */
   var progress=document.getElementById('progress'),ticking=false;
@@ -458,14 +505,17 @@ function setProgress(p){
   });
 
   /* Fade-and-rise as content enters the viewport */
-  var items=document.querySelectorAll('.rise');
-  if(reduce||!('IntersectionObserver' in window)){items.forEach(function(el){el.classList.add('in');});}
-  else{
-    var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
-    /* stagger list items inside the same parent */
-    document.querySelectorAll('.articles').forEach(function(ul){[].forEach.call(ul.children,function(li,i){li.style.setProperty('--d',(i*90)+'ms');});});
-    items.forEach(function(el){io.observe(el);});
+  var io=null;
+  function watchRise(el){
+    if(reduce||!io){el.classList.add('in');return;}
+    var rect=el.getBoundingClientRect();
+    if(rect.bottom>0&&rect.top<innerHeight){el.classList.add('in');return;}
+    io.observe(el);
   }
+  if(!reduce&&('IntersectionObserver' in window)){
+    io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+  }
+  document.querySelectorAll('.rise').forEach(watchRise);
 
   /* Click-to-copy email */
   var toast=document.getElementById('toast'),tt;
@@ -478,6 +528,225 @@ function setProgress(p){
   });});
 
   var y=document.getElementById('year');if(y)y.textContent=new Date().getFullYear();
+
+  /* Blog: add, edit, and remove posts. Saved in this browser. */
+  var SAMPLE=[
+    {id:'sample-pause',title:'The Pause Between Clicks',date:'2026-10-20',summary:'Why the best websites leave room to breathe, and how white space builds trust.',href:'',created:4},
+    {id:'sample-store',title:'What a Small Store Taught Me',date:'2026-09-02',summary:'Lessons from selling earbuds online, about clarity, care and customers.',href:'',created:3},
+    {id:'sample-silence',title:'Designing in Silence',date:'2026-07-15',summary:'On music, focus, and finding the right sound to work to.',href:'',created:2},
+    {id:'sample-simple',title:'Returning to Simplicity',date:'2026-05-28',summary:'Why I rebuilt my own website with less, and liked it more.',href:'',created:1}
+  ];
+  var BLOG_KEY='blog-posts';
+  var posts=[];
+  var editorOpen=false;
+  var editingId='';
+  var listEl=document.getElementById('postList');
+  var emptyEl=document.getElementById('postEmpty');
+  var form=document.getElementById('composer');
+  var toggle=document.getElementById('composerToggle');
+  var titleInput=document.getElementById('postTitle');
+  var dateInput=document.getElementById('postDate');
+  var summaryInput=document.getElementById('postSummary');
+  var hrefInput=document.getElementById('postLink');
+  var submitBtn=document.getElementById('postSubmit');
+  var cancelBtn=document.getElementById('postCancel');
+  var restoreBtn=document.getElementById('postRestore');
+
+  function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+  function parseISO(iso){
+    var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');
+    if(!m)return '';
+    var y=+m[1],mo=+m[2],d=+m[3];
+    var dt=new Date(y,mo-1,d);
+    if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d)return '';
+    return m[0];
+  }
+  function formatDate(iso){
+    var p=iso.split('-');
+    var dt=new Date(+p[0],+p[1]-1,+p[2]);
+    return dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  }
+  function todayISO(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function safeHref(value){
+    var v=String(value||'').trim();
+    if(!v)return '';
+    if(/^https?:\/\/\S+$/i.test(v))return v;
+    if(v.charAt(0)==='/'&&v.charAt(1)!=='/')return v;
+    if(/^(?:posts\/)?[a-z0-9][a-z0-9._~/-]*$/i.test(v)&&v.indexOf('..')===-1)return v;
+    return null;
+  }
+  function normalize(item){
+    if(!item||typeof item!=='object')return null;
+    var title=String(item.title||'').trim().slice(0,140);
+    var date=parseISO(String(item.date||''));
+    if(!title||!date)return null;
+    var href=safeHref(item.href||'');
+    if(href===null)href='';
+    return {id:String(item.id||uid()),title:title,date:date,summary:String(item.summary||'').trim().slice(0,240),href:href,created:typeof item.created==='number'?item.created:0};
+  }
+  function sortPosts(){
+    posts.sort(function(a,b){if(a.date!==b.date)return a.date<b.date?1:-1;return (b.created||0)-(a.created||0);});
+  }
+  function loadPosts(){
+    try{
+      var raw=localStorage.getItem(BLOG_KEY);
+      if(raw){
+        var parsed=JSON.parse(raw);
+        if(Array.isArray(parsed)){
+          posts=parsed.map(normalize).filter(Boolean);
+          sortPosts();
+          return;
+        }
+      }
+    }catch(e){}
+    posts=SAMPLE.map(function(p){return normalize(p);});
+  }
+  function persistPosts(){
+    try{localStorage.setItem(BLOG_KEY,JSON.stringify(posts));return true;}catch(e){return false;}
+  }
+  function renderPosts(){
+    listEl.textContent='';
+    emptyEl.hidden=posts.length>0;
+    posts.forEach(function(post,i){
+      var li=document.createElement('li');
+      li.className='rise'+(post.id===editingId?' is-editing':'');
+      li.style.setProperty('--d',(i*90)+'ms');
+      var card=document.createElement(post.href?'a':'div');
+      card.className='post';
+      if(post.href){
+        card.href=post.href;
+        if(/^https?:/i.test(post.href)){card.target='_blank';card.rel='noopener noreferrer';}
+      }
+      var h3=document.createElement('h3');
+      h3.textContent=post.title;
+      var time=document.createElement('time');
+      time.dateTime=post.date;
+      time.textContent=formatDate(post.date);
+      card.appendChild(h3);
+      card.appendChild(time);
+      if(post.summary){
+        var para=document.createElement('p');
+        para.textContent=post.summary;
+        card.appendChild(para);
+      }
+      li.appendChild(card);
+      if(editorOpen){
+        var actions=document.createElement('div');
+        actions.className='post-actions';
+        var editBtn=document.createElement('button');
+        editBtn.type='button';
+        editBtn.textContent='Edit';
+        editBtn.addEventListener('click',function(){beginEdit(post.id);});
+        var removeBtn=document.createElement('button');
+        removeBtn.type='button';
+        removeBtn.textContent='Remove';
+        removeBtn.addEventListener('click',function(){removePost(post.id);});
+        actions.appendChild(editBtn);
+        actions.appendChild(removeBtn);
+        li.appendChild(actions);
+      }
+      listEl.appendChild(li);
+      watchRise(li);
+    });
+  }
+  function resetForm(){
+    editingId='';
+    form.reset();
+    dateInput.value=todayISO();
+    hrefInput.removeAttribute('aria-invalid');
+    submitBtn.textContent='Add post';
+    cancelBtn.hidden=true;
+  }
+  function openEditor(){
+    editorOpen=true;
+    form.hidden=false;
+    toggle.setAttribute('aria-expanded','true');
+    toggle.textContent='Done';
+    if(!editingId)resetForm();
+    renderPosts();
+    titleInput.focus();
+  }
+  function closeEditor(){
+    editorOpen=false;
+    editingId='';
+    form.hidden=true;
+    toggle.setAttribute('aria-expanded','false');
+    toggle.textContent='Add a post';
+    resetForm();
+    renderPosts();
+  }
+  function beginEdit(id){
+    var post=null;
+    posts.forEach(function(p){if(p.id===id)post=p;});
+    if(!post)return;
+    editorOpen=true;
+    editingId=id;
+    form.hidden=false;
+    toggle.setAttribute('aria-expanded','true');
+    toggle.textContent='Done';
+    titleInput.value=post.title;
+    dateInput.value=post.date;
+    summaryInput.value=post.summary;
+    hrefInput.value=post.href;
+    hrefInput.removeAttribute('aria-invalid');
+    submitBtn.textContent='Save changes';
+    cancelBtn.hidden=false;
+    renderPosts();
+    titleInput.focus();
+    form.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
+  }
+  function removePost(id){
+    posts=posts.filter(function(p){return p.id!==id;});
+    if(editingId===id)resetForm();
+    if(!persistPosts())show('Could not save in this browser');
+    else show('Post removed');
+    renderPosts();
+  }
+  toggle.addEventListener('click',function(){if(editorOpen)closeEditor();else openEditor();});
+  cancelBtn.addEventListener('click',function(){resetForm();renderPosts();titleInput.focus();});
+  restoreBtn.addEventListener('click',function(){
+    if(!confirm('Replace your posts with the sample ones?'))return;
+    posts=SAMPLE.map(function(p){return normalize(p);});
+    resetForm();
+    if(!persistPosts())show('Could not save in this browser');
+    else show('Sample posts restored');
+    renderPosts();
+  });
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!form.reportValidity())return;
+    var href=safeHref(hrefInput.value);
+    if(href===null){
+      hrefInput.setAttribute('aria-invalid','true');
+      hrefInput.focus();
+      show('Use a link like https://…');
+      return;
+    }
+    hrefInput.removeAttribute('aria-invalid');
+    var draft={title:titleInput.value,date:dateInput.value,summary:summaryInput.value,href:href};
+    if(editingId){
+      posts=posts.map(function(p){
+        if(p.id!==editingId)return p;
+        var next=normalize({id:p.id,title:draft.title,date:draft.date,summary:draft.summary,href:draft.href,created:p.created});
+        return next||p;
+      });
+    }else{
+      var created=normalize({id:uid(),title:draft.title,date:draft.date,summary:draft.summary,href:draft.href,created:Date.now()});
+      if(created)posts.push(created);
+    }
+    sortPosts();
+    var saved=persistPosts();
+    var wasEdit=!!editingId;
+    resetForm();
+    renderPosts();
+    show(saved?(wasEdit?'Post updated':'Post added'):'Could not save in this browser');
+    if(saved&&!wasEdit)titleInput.focus();
+  });
+  loadPosts();
+  renderPosts();
 })();
 </script>
 </body>
