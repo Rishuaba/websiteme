@@ -166,6 +166,8 @@ p:last-child{margin-bottom:0}
 /* Blog editor */
 .blog-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:8px}
 .blog-head h2{margin-bottom:0}
+.blog-head .pill{flex:none}
+.blog-help{margin:14px 0 4px;font-size:14.5px;color:var(--muted)}
 .text-btn{background:none;border:0;padding:0;font:inherit;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
 .text-btn:hover{color:var(--accent);border-color:var(--accent)}
 .composer{margin:22px 0 6px}
@@ -184,9 +186,9 @@ p:last-child{margin-bottom:0}
 .pill{background:var(--text);color:var(--bg);border:0;border-radius:999px;padding:8px 16px;font:inherit;font-size:13px;cursor:pointer;transition:transform .2s,opacity .2s}
 .pill:hover{transform:translateY(-1px)}
 .pill:active{transform:none}
-.post-actions{display:flex;gap:16px;margin:-6px 0 16px}
-.post-actions button{background:none;border:0;padding:0;font:inherit;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);cursor:pointer}
-.post-actions button:hover{color:var(--accent)}
+.post-actions{display:flex;gap:18px;margin:-4px 0 16px}
+.post-actions button{background:none;border:0;padding:0;font:inherit;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line)}
+.post-actions button:hover,.post-actions .delete{color:var(--accent);border-bottom-color:var(--accent)}
 li.is-editing .post h3{color:var(--accent)}
 .empty{margin:8px 0 0;color:var(--muted)}
 .empty[hidden]{display:none}
@@ -368,8 +370,9 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
     <div class="wrap">
       <div class="blog-head rise">
         <h2>Latest Blog</h2>
-        <button type="button" class="text-btn" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
+        <button type="button" class="pill" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
       </div>
+      <p class="blog-help rise">Press <b>Add a post</b>. To remove one, press <b>Delete</b> under that post.</p>
       <form class="composer" id="composer" hidden>
         <div class="composer-grid">
           <label class="field"><span>Title</span>
@@ -633,21 +636,20 @@ function setProgress(p){
         card.appendChild(para);
       }
       li.appendChild(card);
-      if(editorOpen){
-        var actions=document.createElement('div');
-        actions.className='post-actions';
-        var editBtn=document.createElement('button');
-        editBtn.type='button';
-        editBtn.textContent='Edit';
-        editBtn.addEventListener('click',function(){beginEdit(post.id);});
-        var removeBtn=document.createElement('button');
-        removeBtn.type='button';
-        removeBtn.textContent='Remove';
-        removeBtn.addEventListener('click',function(){removePost(post.id);});
-        actions.appendChild(editBtn);
-        actions.appendChild(removeBtn);
-        li.appendChild(actions);
-      }
+      var actions=document.createElement('div');
+      actions.className='post-actions';
+      var editBtn=document.createElement('button');
+      editBtn.type='button';
+      editBtn.textContent='Edit';
+      editBtn.addEventListener('click',function(){beginEdit(post.id);});
+      var removeBtn=document.createElement('button');
+      removeBtn.type='button';
+      removeBtn.className='delete';
+      removeBtn.textContent='Delete';
+      removeBtn.addEventListener('click',function(){removePost(post.id);});
+      actions.appendChild(editBtn);
+      actions.appendChild(removeBtn);
+      li.appendChild(actions);
       listEl.appendChild(li);
       watchRise(li);
     });
@@ -664,7 +666,7 @@ function setProgress(p){
     editorOpen=true;
     form.hidden=false;
     toggle.setAttribute('aria-expanded','true');
-    toggle.textContent='Done';
+    toggle.textContent='Close';
     if(!editingId)resetForm();
     renderPosts();
     titleInput.focus();
@@ -686,7 +688,7 @@ function setProgress(p){
     editingId=id;
     form.hidden=false;
     toggle.setAttribute('aria-expanded','true');
-    toggle.textContent='Done';
+    toggle.textContent='Close';
     titleInput.value=post.title;
     dateInput.value=post.date;
     summaryInput.value=post.summary;
@@ -699,10 +701,14 @@ function setProgress(p){
     form.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
   }
   function removePost(id){
+    var post=null;
+    posts.forEach(function(p){if(p.id===id)post=p;});
+    if(!post)return;
+    if(!confirm('Delete "'+post.title+'"?'))return;
     posts=posts.filter(function(p){return p.id!==id;});
     if(editingId===id)resetForm();
     if(!persistPosts())show('Could not save in this browser');
-    else show('Post removed');
+    else show('Post deleted');
     renderPosts();
   }
   toggle.addEventListener('click',function(){if(editorOpen)closeEditor();else openEditor();});
