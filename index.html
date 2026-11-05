@@ -18,9 +18,9 @@
                  automatically from every <section data-dot="Label">.
   5. SECTIONS    Each part is a <section id="..."> marked with an EDIT comment.
                  Delete a section to remove it, and remove its menu link.
-  6. BLOG        Open the site, go to Latest Blog, and press "Add a post".
-                 Fill in the title, the date, and one line. It is saved in
-                 this browser. Sample posts are the SAMPLE list in the script.
+  6. BLOG        Latest Blog reads posts.json, so every visitor sees the same
+                 list. Add or delete on the page, then press "Show to
+                 visitors" and submit the GitHub page that opens.
   7. EMAIL       Change data-email on the copy button and the mailto: links.
   8. SOCIALS     Replace "your-username" in the Contact section links.
   9. SHOP        Edit product names, descriptions and INR prices in "shop".
@@ -167,7 +167,12 @@ p:last-child{margin-bottom:0}
 .blog-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:8px}
 .blog-head h2{margin-bottom:0}
 .blog-head .pill{flex:none}
+.blog-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
 .blog-help{margin:14px 0 4px;font-size:14.5px;color:var(--muted)}
+.publish-note{margin:14px 0 8px;padding:12px 14px;border:1px solid var(--line);font-size:14.5px;line-height:1.55}
+.publish-note[hidden]{display:none}
+.publish-note a{display:inline-block;margin-top:8px;color:var(--accent)}
+.publish-note a[hidden]{display:none}
 .text-btn{background:none;border:0;padding:0;font:inherit;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
 .text-btn:hover{color:var(--accent);border-color:var(--accent)}
 .composer{margin:22px 0 6px}
@@ -271,6 +276,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   .about{grid-template-columns:1fr;gap:24px}
   .portrait{width:120px}
   .blog-head{flex-direction:column;align-items:flex-start;gap:12px}
+  .blog-actions{justify-content:flex-start}
   .composer-grid{grid-template-columns:1fr}
   .shop{grid-template-columns:1fr;gap:0}
   .item{display:grid;grid-template-columns:84px 1fr;gap:2px 18px;padding:18px 0}
@@ -370,9 +376,13 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
     <div class="wrap">
       <div class="blog-head rise">
         <h2>Latest Blog</h2>
-        <button type="button" class="pill" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
+        <div class="blog-actions">
+          <button type="button" class="pill" id="composerToggle" aria-expanded="false" aria-controls="composer">Add a post</button>
+          <button type="button" class="pill" id="publishBtn">Show to visitors</button>
+        </div>
       </div>
-      <p class="blog-help rise">Press <b>Add a post</b>. To remove one, press <b>Delete</b> under that post.</p>
+      <p class="blog-help rise">Press <b>Add a post</b>. Press <b>Delete</b> under a post you do not want. Then press <b>Show to visitors</b>.</p>
+      <p class="publish-note" id="publishNote" hidden>Visitors cannot see this yet. Press <b>Show to visitors</b>. On the GitHub page, press the green <b>Submit new issue</b> button. Wait a minute, then refresh this page. <a class="link" id="publishLink" href="https://github.com/Rishuaba/websiteme/issues/new?title=Publish%20blog" target="_blank" rel="noopener noreferrer" hidden>Open the GitHub page</a></p>
       <form class="composer" id="composer" hidden>
         <div class="composer-grid">
           <label class="field"><span>Title</span>
@@ -392,7 +402,7 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
           <button class="pill" id="postSubmit" type="submit">Add post</button>
           <button class="text-btn" id="postCancel" type="button" hidden>Cancel</button>
           <button class="text-btn" id="postRestore" type="button">Restore sample posts</button>
-          <p class="composer-note">Saved in this browser, on this device.</p>
+          <p class="composer-note">Visitors see the change after you press Show to visitors.</p>
         </div>
       </form>
       <p class="empty" id="postEmpty" hidden>No posts yet. Add a title and a date to start.</p>
@@ -532,15 +542,16 @@ function setProgress(p){
 
   var y=document.getElementById('year');if(y)y.textContent=new Date().getFullYear();
 
-  /* Blog: add, edit, and remove posts. Saved in this browser. */
+  /* Blog: the public list is posts.json. Show to visitors opens a GitHub page that publishes it. */
   var SAMPLE=[
     {id:'sample-pause',title:'The Pause Between Clicks',date:'2026-10-20',summary:'Why the best websites leave room to breathe, and how white space builds trust.',href:'',created:4},
     {id:'sample-store',title:'What a Small Store Taught Me',date:'2026-09-02',summary:'Lessons from selling earbuds online, about clarity, care and customers.',href:'',created:3},
     {id:'sample-silence',title:'Designing in Silence',date:'2026-07-15',summary:'On music, focus, and finding the right sound to work to.',href:'',created:2},
     {id:'sample-simple',title:'Returning to Simplicity',date:'2026-05-28',summary:'Why I rebuilt my own website with less, and liked it more.',href:'',created:1}
   ];
-  var BLOG_KEY='blog-posts';
+  var REPO='Rishuaba/websiteme';
   var posts=[];
+  var publishedKey='';
   var editorOpen=false;
   var editingId='';
   var listEl=document.getElementById('postList');
@@ -554,6 +565,9 @@ function setProgress(p){
   var submitBtn=document.getElementById('postSubmit');
   var cancelBtn=document.getElementById('postCancel');
   var restoreBtn=document.getElementById('postRestore');
+  var publishBtn=document.getElementById('publishBtn');
+  var publishNote=document.getElementById('publishNote');
+  var publishLink=document.getElementById('publishLink');
 
   function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
   function parseISO(iso){
@@ -593,22 +607,39 @@ function setProgress(p){
   function sortPosts(){
     posts.sort(function(a,b){if(a.date!==b.date)return a.date<b.date?1:-1;return (b.created||0)-(a.created||0);});
   }
-  function loadPosts(){
-    try{
-      var raw=localStorage.getItem(BLOG_KEY);
-      if(raw){
-        var parsed=JSON.parse(raw);
-        if(Array.isArray(parsed)){
-          posts=parsed.map(normalize).filter(Boolean);
-          sortPosts();
-          return;
-        }
-      }
-    }catch(e){}
-    posts=SAMPLE.map(function(p){return normalize(p);});
+  function slimList(list){
+    return list.map(function(p){return {title:p.title,date:p.date,summary:p.summary||'',href:p.href||''};});
   }
-  function persistPosts(){
-    try{localStorage.setItem(BLOG_KEY,JSON.stringify(posts));return true;}catch(e){return false;}
+  function listKey(list){return JSON.stringify(slimList(list));}
+  function dirty(){return listKey(posts)!==publishedKey;}
+  function rememberPublic(){
+    publishedKey=listKey(posts);
+    publishNote.hidden=true;
+    publishLink.hidden=true;
+  }
+  function markDirty(){
+    if(!dirty()){publishNote.hidden=true;return;}
+    publishNote.hidden=false;
+  }
+  function publishUrl(){
+    var body='Please publish this blog list.\n\n```json\n'+JSON.stringify(slimList(posts),null,2)+'\n```\n';
+    return 'https://github.com/'+REPO+'/issues/new?labels=blog&title='+encodeURIComponent('Publish blog')+'&body='+encodeURIComponent(body);
+  }
+  function applyPosts(list){
+    posts=list.map(normalize).filter(Boolean);
+    sortPosts();
+    try{localStorage.removeItem('blog-posts');}catch(e){}
+    rememberPublic();
+    renderPosts();
+  }
+  function loadPosts(){
+    fetch('posts.json',{cache:'no-store'}).then(function(res){
+      if(!res.ok)throw new Error('missing');
+      return res.json();
+    }).then(function(parsed){
+      if(!Array.isArray(parsed))throw new Error('bad');
+      applyPosts(parsed);
+    }).catch(function(){applyPosts(SAMPLE);});
   }
   function renderPosts(){
     listEl.textContent='';
@@ -707,9 +738,9 @@ function setProgress(p){
     if(!confirm('Delete "'+post.title+'"?'))return;
     posts=posts.filter(function(p){return p.id!==id;});
     if(editingId===id)resetForm();
-    if(!persistPosts())show('Could not save in this browser');
-    else show('Post deleted');
     renderPosts();
+    markDirty();
+    show(dirty()?'Post deleted. Press Show to visitors.':'Post deleted');
   }
   toggle.addEventListener('click',function(){if(editorOpen)closeEditor();else openEditor();});
   cancelBtn.addEventListener('click',function(){resetForm();renderPosts();titleInput.focus();});
@@ -717,9 +748,9 @@ function setProgress(p){
     if(!confirm('Replace your posts with the sample ones?'))return;
     posts=SAMPLE.map(function(p){return normalize(p);});
     resetForm();
-    if(!persistPosts())show('Could not save in this browser');
-    else show('Sample posts restored');
     renderPosts();
+    markDirty();
+    show(dirty()?'Sample posts restored. Press Show to visitors.':'Already the sample posts');
   });
   form.addEventListener('submit',function(e){
     e.preventDefault();
@@ -744,15 +775,24 @@ function setProgress(p){
       if(created)posts.push(created);
     }
     sortPosts();
-    var saved=persistPosts();
     var wasEdit=!!editingId;
     resetForm();
     renderPosts();
-    show(saved?(wasEdit?'Post updated':'Post added'):'Could not save in this browser');
-    if(saved&&!wasEdit)titleInput.focus();
+    markDirty();
+    show(wasEdit?'Post updated. Press Show to visitors.':'Post added. Press Show to visitors.');
+    if(!wasEdit)titleInput.focus();
+  });
+  publishBtn.addEventListener('click',function(){
+    if(!dirty()){show('Add or delete a post first.');return;}
+    var url=publishUrl();
+    publishLink.href=url;
+    publishLink.hidden=false;
+    publishNote.hidden=false;
+    var tab=window.open(url,'_blank');
+    if(tab){try{tab.opener=null;}catch(err){}}
+    show(tab?'Press the green Submit button':'Open the GitHub link below');
   });
   loadPosts();
-  renderPosts();
 })();
 </script>
 </body>
