@@ -19,8 +19,9 @@
   5. SECTIONS    Each part is a <section id="..."> marked with an EDIT comment.
                  Delete a section to remove it, and remove its menu link.
   6. BLOG        Latest Blog reads posts.json. Write the article in
-                 posts/<name>.html and set href to that path. A push to
-                 main publishes the site. The page has no editor.
+                 posts/<name>.html and set href to that path. A click opens
+                 that writing here, on this page, with the same background,
+                 type, and animation. A push to main publishes the site.
   7. EMAIL       Change data-email on the copy button and the mailto: links.
   8. SOCIALS     Replace "your-username" in the Contact section links.
   9. SHOP        Edit product names, descriptions and INR prices in "shop".
@@ -75,6 +76,7 @@
 
 /* ===== BASE ===== */
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
 html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;transition:background-color .4s,color .4s}
 /* Warm gradient wash (fixed behind everything) */
@@ -163,6 +165,17 @@ p:last-child{margin-bottom:0}
 .post:hover h3{color:var(--accent)}
 .more{display:inline-block;margin-top:26px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase}
 
+/* Reading a post stays on this page (same wash, type, and rise) */
+#reader[hidden]{display:none}
+#reader{padding:72px 0 96px}
+#reader .wrap{border-top:0;padding-top:0}
+#reader h1{font-size:clamp(40px,6vw,64px);line-height:1.05}
+#reader time{display:block;margin-top:16px;font-size:12.5px;letter-spacing:.04em;color:var(--faint)}
+#reader .back{display:inline-block;margin:0 0 28px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
+#reader .back:hover{color:var(--accent);border-color:var(--accent)}
+#reader .body{margin-top:32px}
+#reader .body p{margin:0 0 18px;font-size:17px;line-height:1.75}
+
 .empty{margin:8px 0 0;color:var(--muted)}
 .empty[hidden]{display:none}
 
@@ -240,6 +253,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
   .wrap{padding:0 22px}
   section{padding:56px 0}
   section + section .wrap{padding-top:56px}
+  #reader{padding:56px 0 72px}
+  #reader .wrap{padding-top:0}
   .hero{min-height:auto;padding:72px 0 64px}
   .about{grid-template-columns:1fr;gap:24px}
   .portrait{width:120px}
@@ -346,6 +361,16 @@ html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
     </div>
   </section>
 
+  <!-- Opened from a blog click. Same page, so the wash and header stay put. -->
+  <section id="reader" hidden aria-labelledby="readerTitle">
+    <div class="wrap">
+      <a class="back" id="readerBack" href="#articles">Latest Blog</a>
+      <h1 id="readerTitle"></h1>
+      <time id="readerTime"></time>
+      <div class="body" id="readerBody"></div>
+    </div>
+  </section>
+
 </main>
 
 
@@ -442,13 +467,94 @@ function setProgress(p){
     sections.forEach(function(s){spy.observe(s);});
   }
 
+  /* A post click reads the article here. The background, header, and type stay. */
+  var reader=document.getElementById('reader');
+  var readerTitle=document.getElementById('readerTitle');
+  var readerTime=document.getElementById('readerTime');
+  var readerBody=document.getElementById('readerBody');
+  var homeTitle=document.title;
+  var reading=false;
+  var savedScroll=0;
+  function localPost(href){
+    return /^posts\/[a-z0-9][a-z0-9._~/-]*\.html$/i.test(href||'')&&href.indexOf('..')===-1;
+  }
+  function playRise(nodes){
+    nodes.forEach(function(el,i){
+      el.classList.add('rise');
+      el.classList.remove('in');
+      el.style.setProperty('--d',(i*80)+'ms');
+    });
+    if(reduce){nodes.forEach(function(el){el.classList.add('in');});return;}
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      nodes.forEach(function(el){el.classList.add('in');});
+    });});
+  }
+  function showHome(restore){
+    reading=false;
+    reader.hidden=true;
+    document.getElementById('top').hidden=false;
+    document.getElementById('articles').hidden=false;
+    document.getElementById('dots').hidden=false;
+    document.title=homeTitle;
+    if(restore)scrollTo(0,savedScroll);
+  }
+  function showReader(href, fromPop){
+    fetch(href,{cache:'no-store'}).then(function(res){
+      if(!res.ok)throw new Error('missing');
+      return res.text();
+    }).then(function(html){
+      var doc=new DOMParser().parseFromString(html,'text/html');
+      var h1=doc.querySelector('article h1');
+      var time=doc.querySelector('article time');
+      var paras=doc.querySelectorAll('article .body p');
+      if(!h1||!paras.length)throw new Error('empty');
+      readerTitle.textContent=h1.textContent;
+      readerTime.dateTime=time?(time.getAttribute('datetime')||''):'';
+      readerTime.textContent=time?time.textContent:'';
+      readerBody.textContent='';
+      paras.forEach(function(p){
+        var np=document.createElement('p');
+        np.textContent=p.textContent;
+        readerBody.appendChild(np);
+      });
+      document.getElementById('top').hidden=true;
+      document.getElementById('articles').hidden=true;
+      document.getElementById('dots').hidden=true;
+      reader.hidden=false;
+      reading=true;
+      document.title=h1.textContent+' · Sharukh';
+      playRise([reader.querySelector('.back'),readerTitle,readerTime,readerBody]);
+      if(!fromPop)savedScroll=scrollY;
+      scrollTo(0,0);
+      if(!fromPop)history.pushState({reading:href},'','#reading='+encodeURIComponent(href));
+      readerTitle.setAttribute('tabindex','-1');
+      readerTitle.focus({preventScroll:true});
+    }).catch(function(){location.href=href;});
+  }
+  addEventListener('popstate',function(e){
+    if(e.state&&localPost(e.state.reading))showReader(e.state.reading,true);
+    else if(reading)showHome(true);
+  });
+  var opened='';
+  if(location.hash.indexOf('#reading=')===0){try{opened=decodeURIComponent(location.hash.slice(9));}catch(err){opened='';}}
+  if(localPost(opened))showReader(opened,true);
+
   /* Smooth scroll for in-page links (CSS handles it too; this keeps the URL hash tidy and focus accessible) */
   document.addEventListener('click',function(e){
+    var postLink=e.target.closest('#postList a.post');
+    if(postLink){
+      var href=postLink.getAttribute('href');
+      if(localPost(href)){e.preventDefault();showReader(href,false);return;}
+    }
     var a=e.target.closest('a[href^="#"]');if(!a)return;var id=a.getAttribute('href').slice(1);if(!id)return;
     var t=document.getElementById(id);if(!t)return;
     e.preventDefault();
+    var wasReading=reading;
+    if(wasReading)showHome(false);
+    if(t.hasAttribute('hidden'))return;
     t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-    history.replaceState(null,'','#'+id);
+    if(wasReading)history.pushState(null,'','#'+id);
+    else history.replaceState(null,'','#'+id);
     t.setAttribute('tabindex','-1');t.focus({preventScroll:true});
   });
 
