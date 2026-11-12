@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- EDIT: post title shown in the browser tab -->
+  <title>Your Post Title — Sharukh</title>
+  <meta name="description" content="A one-line subtitle or summary of the post.">
+  <meta name="theme-color" content="#050507">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <script>
+    /* enables animations; shows the arrival veil after an in-site link click */
+    (function(d){var c=d.documentElement;c.classList.add('js');
+      try{if(sessionStorage.getItem('veil')){c.classList.add('arriving');sessionStorage.removeItem('veil');}}catch(e){}
+      setTimeout(function(){if(!window.__site){c.classList.remove('js','arriving');}},2500);})(document);
+  </script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span><span class="grain"></span>
+  </div>
+  <div class="veil" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <a class="back reveal" href="../index.html"><span aria-hidden="true">←</span> Back</a>
+
+    <article>
+      <header>
+        <!-- EDIT: date (datetime="YYYY-MM-DD"), title and subtitle -->
+        <time class="post-date reveal" datetime="2026-01-01">Jan 1, 2026</time>
+        <h1 class="article-title reveal">Your Post Title</h1>
+        <p class="article-sub reveal">A one-line subtitle or summary of the post.</p>
+      </header>
+
+      <!-- EDIT: your article goes here. Use <p>, <h2>, <blockquote>, <a>, <img>. -->
+      <div class="article-body reveal">
+        <p>Start writing your first paragraph here.</p>
+        <h2>A section heading</h2>
+        <p>Another paragraph. Keep it simple — the design does the rest.</p>
+        <blockquote>A line worth remembering can go in a quote.</blockquote>
+        <p>Finish your thoughts here.</p>
+      </div>
+    </article>
+  </main>
+
+  <script src="../main.js"></script>
+</body>
+</html>
